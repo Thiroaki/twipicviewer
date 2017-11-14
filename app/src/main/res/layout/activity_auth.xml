@@ -4,6 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.thiro.twipicviewer.MainActivity">
+    tools:context="com.example.thiro.twipicviewer.AuthActivity">
 
+    <Button
+        android:id="@+id/action_start_oauth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        tools:layout_editor_absoluteY="90dp"
+        tools:layout_editor_absoluteX="148dp"
+        android:onClick="startAuthorize"/>
 </android.support.constraint.ConstraintLayout>
