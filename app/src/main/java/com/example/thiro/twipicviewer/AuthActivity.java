@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 public class AuthActivity extends Activity {
@@ -18,6 +19,7 @@ public class AuthActivity extends Activity {
     private String mCallbackURL;
     private Twitter mTwitter;
     private RequestToken mRequestToken;
+    private Button button;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,7 +30,8 @@ public class AuthActivity extends Activity {
         mTwitter = TwitterUtils.getTwitterInstance(this);
         mTwitter.setOAuthAccessToken(null);
 
-        findViewById(R.id.action_start_oauth).setOnClickListener(new View.OnClickListener() {
+        button = (Button) findViewById(R.id.action_start_oauth);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startAuthorize();
