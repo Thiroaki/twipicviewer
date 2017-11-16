@@ -30,7 +30,7 @@ public class AuthActivity extends Activity {
         mTwitter = TwitterUtils.getTwitterInstance(this);
         mTwitter.setOAuthAccessToken(null);
 
-        button = (Button) findViewById(R.id.action_start_oauth);
+        button = findViewById(R.id.action_start_oauth);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

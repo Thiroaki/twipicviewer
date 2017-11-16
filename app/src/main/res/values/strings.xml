@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">TwiPicViewer</string>
-    <string name="twitter_callback_url">tpviewer://twitter</string>
+    <string name="twitter_callback_url">tpver://test</string>
 </resources>
