@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class AuthActivity extends Activity {
+public class OAuthActivity extends Activity {
 
     private String mCallbackURL;
     private Twitter mTwitter;

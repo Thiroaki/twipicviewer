@@ -1,11 +1,12 @@
 package com.example.thiro.twipicviewer;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -16,7 +17,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity implements ListView.OnItemClickListener {
 
     private Twitter mTwitter;
     private TweetAdapter mAdapter;
@@ -29,9 +30,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         listView = (ListView) findViewById(R.id.listView);
+        listView.setOnItemClickListener(this);
 
         if (!TwitterUtils.hasAccessToken(this)) {
-            Intent intent = new Intent(this, AuthActivity.class);
+            Intent intent = new Intent(this, OAuthActivity.class);
             startActivity(intent);
             finish();
         } else {
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
             mTwitter = TwitterUtils.getTwitterInstance(this);
             loadTimeLine();
         }
+
     }
 
 
@@ -67,6 +70,15 @@ public class MainActivity extends AppCompatActivity {
         };
         task.execute();
     }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View v, int position, long id){
+        Intent intent = new Intent(getApplicationContext(),DetailActivity.class);
+        long itemId = mAdapter.getItemId(position);
+        intent.putExtra("id",itemId);
+        startActivity(intent);
+    }
+
 
     private void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();

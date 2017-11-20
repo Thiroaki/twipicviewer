@@ -25,7 +25,7 @@ public class TweetAdapter extends BaseAdapter {
     Context context;
 
     static class ViewHolder {
-        long[] tweetId;
+        long tweetId;
         ImageView image;
     }
 
@@ -62,6 +62,7 @@ public class TweetAdapter extends BaseAdapter {
 
             holder = new ViewHolder();
             holder.image = (ImageView) convertView.findViewById(R.id.imageView);
+            holder.tweetId = idList.get(position);
 
             convertView.setTag(holder);
         } else {
@@ -85,7 +86,7 @@ public class TweetAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return idList.get(position);
     }
 
 }
