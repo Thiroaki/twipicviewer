@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context="com.example.thiro.twipicviewer.MainActivity">
 
-    <GridView
-        android:id="@+id/listView"
+    <jp.co.recruit_mp.android.headerfootergridview.HeaderFooterGridView
+        android:id="@+id/gridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:numColumns="2"/>
