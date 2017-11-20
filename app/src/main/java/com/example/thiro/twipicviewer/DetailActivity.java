@@ -17,6 +17,7 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         long itemId = intent.getLongExtra("id",0);
+        
 
         showToast(String.valueOf(itemId));
 

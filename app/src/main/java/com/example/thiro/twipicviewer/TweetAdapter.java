@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import twitter4j.MediaEntity;
+import twitter4j.Status;
 
 /**
  * Created by tomi on 2017/11/16.
@@ -22,6 +23,7 @@ public class TweetAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private ArrayList<String> imageUrls = new ArrayList<>();
     private ArrayList<Long> idList = new ArrayList<>();
+    private String mediaUrl;
     Context context;
 
     static class ViewHolder {
@@ -32,7 +34,6 @@ public class TweetAdapter extends BaseAdapter {
     public TweetAdapter(Context mcontext, List<twitter4j.Status> statuses) {
         super();
         mInflater = LayoutInflater.from(mcontext);
-        String mediaUrl;
         context = mcontext;
 
         for (int i=0;i<statuses.size();i++) {
@@ -42,13 +43,28 @@ public class TweetAdapter extends BaseAdapter {
                 for (int j = 0; j<mediaEntities.length; j++) {
                     mediaUrl = mediaEntities[j].getMediaURLHttps();
                     if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
-                        imageUrls.add(mediaUrl);
+                        imageUrls.add(mediaUrl+":small");
                     }
                 }
                 idList.add(status.getId());
             }
         }
+    }
 
+    public void addTimeLine(List<Status> statuses){
+        for (int i=0;i<statuses.size();i++) {
+            twitter4j.Status status = statuses.get(i);
+            MediaEntity[] mediaEntities = status.getExtendedMediaEntities();
+            if (mediaEntities.length > 0) {
+                for (int j = 0; j<mediaEntities.length; j++) {
+                    mediaUrl = mediaEntities[j].getMediaURLHttps();
+                    if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
+                        imageUrls.add(mediaUrl+":small");
+                    }
+                }
+                idList.add(status.getId());
+            }
+        }
 
     }
 

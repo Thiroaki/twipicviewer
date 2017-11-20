@@ -6,7 +6,9 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,16 +23,34 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
 
     private Twitter mTwitter;
     private TweetAdapter mAdapter;
-    private ListView listView;
-    private Paging paging = new Paging(1,200);
+    private GridView listView;
+    private int pageCount;
+    private AsyncTask<Void, Void, List<Status>> addTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = (ListView) findViewById(R.id.listView);
+        pageCount = 1;
+
+        listView = (GridView) findViewById(R.id.listView);
         listView.setOnItemClickListener(this);
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (addTask == null || addTask.getStatus() != AsyncTask.Status.RUNNING) {
+                    if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
+                        additionalTimeLine();
+                    }
+                }
+            }
+        });
 
         if (!TwitterUtils.hasAccessToken(this)) {
             Intent intent = new Intent(this, OAuthActivity.class);
@@ -46,11 +66,11 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
 
 
     private void loadTimeLine() {
-        AsyncTask<Void, Void, List<Status>> task = new AsyncTask<Void, Void, List<twitter4j.Status>>() {
+        AsyncTask<Void, Void, List<Status>> loadTask = new AsyncTask<Void, Void, List<twitter4j.Status>>() {
             @Override
             protected List<twitter4j.Status> doInBackground(Void... params) {
                 try {
-                    return mTwitter.getHomeTimeline(paging);
+                    return mTwitter.getHomeTimeline(new Paging(1,200));
                 } catch (TwitterException e) {
                     e.printStackTrace();
                 }
@@ -63,13 +83,44 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
                     mAdapter = new TweetAdapter(getApplicationContext(),result);
                     listView.setAdapter(mAdapter);
                     showToast("成功");
+                    pageCount++;
                 } else {
                     showToast("タイムラインの取得に失敗しました。。。");
                 }
             }
         };
-        task.execute();
+        loadTask.execute();
     }
+
+    private void additionalTimeLine(){
+        addTask = new AsyncTask<Void, Void, List<twitter4j.Status>>() {
+            @Override
+            protected List<twitter4j.Status> doInBackground(Void... params) {
+                try {
+                    return mTwitter.getHomeTimeline(new Paging(pageCount,200));
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(List<twitter4j.Status> result) {
+                if (result != null) {
+                    mAdapter.addTimeLine(result);
+                    listView.setAdapter(mAdapter);
+                    showToast(pageCount+"ページ目を読み込んだ");
+                    pageCount++;
+                } else {
+                    showToast("タイムラインの取得に失敗しました。。。");
+                }
+            }
+        };
+        addTask.execute();
+    }
+
+
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id){
@@ -78,6 +129,7 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         intent.putExtra("id",itemId);
         startActivity(intent);
     }
+
 
 
     private void showToast(String text) {

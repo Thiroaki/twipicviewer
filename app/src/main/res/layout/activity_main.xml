@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     tools:context="com.example.thiro.twipicviewer.MainActivity">
 
-    <ListView
+    <GridView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:numColumns="2"/>
 </LinearLayout>
