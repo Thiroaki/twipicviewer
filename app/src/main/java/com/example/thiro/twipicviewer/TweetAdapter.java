@@ -59,7 +59,7 @@ public class TweetAdapter extends BaseAdapter {
                 for (int j = 0; j<mediaEntities.length; j++) {
                     mediaUrl = mediaEntities[j].getMediaURLHttps();
                     if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
-                        imageUrls.add(mediaUrl+":small");
+                        imageUrls.add(mediaUrl);
                     }
                 }
                 idList.add(status.getId());
@@ -87,7 +87,12 @@ public class TweetAdapter extends BaseAdapter {
 
         Picasso.with(context).load(imageUrls.get(position)).into(holder.image);
 
+
         return convertView;
+    }
+
+    public String getItemUrl(int position){
+        return imageUrls.get(position);
     }
 
     @Override
