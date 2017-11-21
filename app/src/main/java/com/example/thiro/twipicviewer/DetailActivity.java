@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -25,6 +28,8 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView imageView;
     private ImageView iconImage;
     private TextView tweetText;
+    private ToggleButton rtButton;
+    private ToggleButton favButton;
     private Context context;
 
     @Override
@@ -37,14 +42,81 @@ public class DetailActivity extends AppCompatActivity {
         tweetId = intent.getLongExtra("id",0);
         mTwitter = TwitterUtils.getTwitterInstance(this);
 
+        rtButton = (ToggleButton) findViewById(R.id.button);
+        favButton = (ToggleButton) findViewById(R.id.button2);
         iconImage = (ImageView) findViewById(R.id.iconImage);
         imageView = (ImageView) findViewById(R.id.imageView);
         tweetText = (TextView) findViewById(R.id.textView);
         Picasso.with(context).load(itemUrl + ":orig").into(imageView);
 
+        rtButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked==true){
+                    enRetweet();
+                }else{
+                    deRetweet();
+                }
+            }
+        });
+        favButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked==true){
+                    enFav();
+                }else{
+                    deFav();
+                }
+            }
+        });
+
         getStatus(tweetId);
 
     }
+
+
+
+
+    public void enFav(){
+        async(0);
+    }
+
+    public void deFav(){
+        /*try {
+            mTwitter.destroyFavorite(tweetId);
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }*/
+        async(1);
+    }
+
+    public void enRetweet(){
+
+    }
+
+    public void deRetweet(){
+
+    }
+
+    public void async(final int id){
+        AsyncTask<Void, Void, Void> loadTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    if (id==0){
+                        mTwitter.createFavorite(tweetId);
+                    }else if (id==1){
+                        mTwitter.destroyFavorite(tweetId);
+                    }
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+        loadTask.execute();
+    }
+
 
     public void getStatus(final long tweetId){
         AsyncTask<Void, Void, Status> loadTask = new AsyncTask<Void, Void, Status>() {
@@ -63,7 +135,6 @@ public class DetailActivity extends AppCompatActivity {
                 if (result != null) {
                     tweetText.setText(result.getText());
                     Picasso.with(context).load(result.getUser().getProfileImageURLHttps()).into(iconImage);
-                    showToast("成功");
                 } else {
                     showToast("ツイートの取得に失敗しました。。。");
                 }
