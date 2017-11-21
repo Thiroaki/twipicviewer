@@ -36,14 +36,14 @@ public class TweetAdapter extends BaseAdapter {
         mInflater = LayoutInflater.from(mcontext);
         context = mcontext;
 
-        for (int i=0;i<statuses.size();i++) {
+        for (int i = 0; i < statuses.size(); i++) {
             twitter4j.Status status = statuses.get(i);
             MediaEntity[] mediaEntities = status.getExtendedMediaEntities();
             if (mediaEntities.length > 0) {
-                for (int j = 0; j<mediaEntities.length; j++) {
+                for (int j = 0; j < mediaEntities.length; j++) {
                     mediaUrl = mediaEntities[j].getMediaURLHttps();
                     if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
-                        imageUrls.add(mediaUrl+":small");
+                        imageUrls.add(mediaUrl);
                     }
                 }
                 idList.add(status.getId());
@@ -51,12 +51,12 @@ public class TweetAdapter extends BaseAdapter {
         }
     }
 
-    public void addTimeLine(List<Status> statuses){
-        for (int i=0;i<statuses.size();i++) {
+    public void addTimeLine(List<Status> statuses) {
+        for (int i = 0; i < statuses.size(); i++) {
             twitter4j.Status status = statuses.get(i);
             MediaEntity[] mediaEntities = status.getExtendedMediaEntities();
             if (mediaEntities.length > 0) {
-                for (int j = 0; j<mediaEntities.length; j++) {
+                for (int j = 0; j < mediaEntities.length; j++) {
                     mediaUrl = mediaEntities[j].getMediaURLHttps();
                     if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
                         imageUrls.add(mediaUrl);
@@ -91,7 +91,7 @@ public class TweetAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public String getItemUrl(int position){
+    public String getItemUrl(int position) {
         return imageUrls.get(position);
     }
 

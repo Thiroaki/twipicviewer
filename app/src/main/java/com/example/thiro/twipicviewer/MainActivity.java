@@ -133,9 +133,8 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
         Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
-        long itemId = mAdapter.getItemId(position);
-        String itemUrl = mAdapter.getItemUrl(position);
-        intent.putExtra("id", itemUrl);
+        intent.putExtra("url", mAdapter.getItemUrl(position));
+        intent.putExtra("id", mAdapter.getItemId(position));
         startActivity(intent);
     }
 
