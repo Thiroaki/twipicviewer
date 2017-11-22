@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,9 +13,6 @@ import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
-import twitter4j.Paging;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -30,6 +26,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView tweetText;
     private ToggleButton rtButton;
     private ToggleButton favButton;
+    private TextView idText;
     private Context context;
 
     @Override
@@ -39,7 +36,7 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         itemUrl = intent.getStringExtra("url");
-        tweetId = intent.getLongExtra("id",0);
+        tweetId = intent.getLongExtra("id", 0);
         mTwitter = TwitterUtils.getTwitterInstance(this);
 
         rtButton = (ToggleButton) findViewById(R.id.button);
@@ -47,14 +44,17 @@ public class DetailActivity extends AppCompatActivity {
         iconImage = (ImageView) findViewById(R.id.iconImage);
         imageView = (ImageView) findViewById(R.id.imageView);
         tweetText = (TextView) findViewById(R.id.textView);
+        idText = (TextView) findViewById(R.id.textView3);
+
+        idText.setText(String.valueOf(tweetId));
         Picasso.with(context).load(itemUrl + ":orig").into(imageView);
 
         rtButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked==true){
+                if (isChecked == true) {
                     enRetweet();
-                }else{
+                } else {
                     deRetweet();
                 }
             }
@@ -62,9 +62,9 @@ public class DetailActivity extends AppCompatActivity {
         favButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked==true){
+                if (isChecked == true) {
                     enFav();
-                }else{
+                } else {
                     deFav();
                 }
             }
@@ -75,37 +75,30 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
-
-
-    public void enFav(){
+    public void enFav() {
         async(0);
     }
 
-    public void deFav(){
-        /*try {
-            mTwitter.destroyFavorite(tweetId);
-        } catch (TwitterException e) {
-            e.printStackTrace();
-        }*/
+    public void deFav() {
         async(1);
     }
 
-    public void enRetweet(){
+    public void enRetweet() {
 
     }
 
-    public void deRetweet(){
+    public void deRetweet() {
 
     }
 
-    public void async(final int id){
+    public void async(final int id) {
         AsyncTask<Void, Void, Void> loadTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    if (id==0){
+                    if (id == 0) {
                         mTwitter.createFavorite(tweetId);
-                    }else if (id==1){
+                    } else if (id == 1) {
                         mTwitter.destroyFavorite(tweetId);
                     }
                 } catch (TwitterException e) {
@@ -118,7 +111,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
-    public void getStatus(final long tweetId){
+    public void getStatus(final long tweetId) {
         AsyncTask<Void, Void, Status> loadTask = new AsyncTask<Void, Void, Status>() {
             @Override
             protected twitter4j.Status doInBackground(Void... params) {

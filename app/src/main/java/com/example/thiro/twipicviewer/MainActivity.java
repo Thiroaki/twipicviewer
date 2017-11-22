@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -19,23 +20,25 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-public class MainActivity extends Activity implements ListView.OnItemClickListener {
+public class MainActivity extends Activity implements ListView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     private Twitter mTwitter;
     private TweetAdapter mAdapter;
     private HeaderFooterGridView gridView;
-    private int pageCount;
+    private int pageCount = 2;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private AsyncTask<Void, Void, List<Status>> addTask;
+    protected long firstTweetId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        pageCount = 1;
-
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
         gridView = (HeaderFooterGridView) findViewById(R.id.gridView);
-        View footer = LayoutInflater.from(this).inflate(R.layout.grid_header, null, false);
+        View footer = LayoutInflater.from(this).inflate(R.layout.grid_footer, null, false);
         gridView.addFooterView(footer, null, true);
         gridView.setOnItemClickListener(this);
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -48,7 +51,7 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (addTask == null || addTask.getStatus() != AsyncTask.Status.RUNNING) {
                     if (totalItemCount != 0 && totalItemCount == firstVisibleItem + visibleItemCount) {
-                        additionalTimeLine();
+                        additionalTimeLine(false);
                     }
                 }
             }
@@ -84,8 +87,8 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
                 if (result != null) {
                     mAdapter = new TweetAdapter(getApplicationContext(), result);
                     gridView.setAdapter(mAdapter);
+                    restoreFirstId();
                     showToast("成功");
-                    pageCount++;
                 } else {
                     showToast("タイムラインの取得に失敗しました。。。");
                 }
@@ -94,12 +97,18 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         loadTask.execute();
     }
 
-    private void additionalTimeLine() {
+    private void additionalTimeLine(final boolean isFirst) {
         addTask = new AsyncTask<Void, Void, List<twitter4j.Status>>() {
             @Override
             protected List<twitter4j.Status> doInBackground(Void... params) {
                 try {
-                    return mTwitter.getHomeTimeline(new Paging(pageCount, 200));
+                    if (isFirst == true) {
+                        // 引っ張って更新した時
+                        return mTwitter.getHomeTimeline(new Paging(firstTweetId));
+                    } else {
+                        // 遡ったとき
+                        return mTwitter.getHomeTimeline(new Paging(pageCount, 200));
+                    }
                 } catch (TwitterException e) {
                     e.printStackTrace();
                 }
@@ -109,13 +118,18 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
             @Override
             protected void onPostExecute(List<twitter4j.Status> result) {
                 if (result != null) {
-                    mAdapter.addTimeLine(result);
-                    //mAdapter.notifyDataSetChanged();
-                    restoreListPosition();
+                    if (isFirst == true) {
+                        // 引っ張って更新した時
+                        mAdapter.addTimeLine(result, isFirst);
+                        showToast("最新更新");
+                    } else {
+                        // TLを遡ったとき
+                        mAdapter.addTimeLine(result, isFirst);
+                        restoreListPosition();
+                        showToast(pageCount + "ページ目を読み込んだ");
+                        pageCount++;
+                    }
                     gridView.setAdapter(mAdapter);
-
-                    showToast(pageCount + "ページ目を読み込んだ");
-                    pageCount++;
                 } else {
                     showToast("タイムラインの取得に失敗しました。。。");
                 }
@@ -129,6 +143,10 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         gridView.setSelection(position);
     }
 
+    private void restoreFirstId() {
+        firstTweetId = mAdapter.idList.getFirst();
+    }
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -136,6 +154,13 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         intent.putExtra("url", mAdapter.getItemUrl(position));
         intent.putExtra("id", mAdapter.getItemId(position));
         startActivity(intent);
+    }
+
+    @Override
+    public void onRefresh() {
+        additionalTimeLine(true);
+        restoreFirstId();
+        swipeRefreshLayout.setRefreshing(false);
     }
 
 

@@ -9,7 +9,8 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import twitter4j.MediaEntity;
@@ -21,13 +22,14 @@ import twitter4j.Status;
 
 public class TweetAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
-    private ArrayList<String> imageUrls = new ArrayList<>();
-    private ArrayList<Long> idList = new ArrayList<>();
+    private LinkedList<String> imageUrls = new LinkedList<>();
+    protected LinkedList<Long> idList = new LinkedList<>();
     private String mediaUrl;
     Context context;
 
     static class ViewHolder {
         long tweetId;
+        String tweetText;
         ImageView image;
     }
 
@@ -44,28 +46,42 @@ public class TweetAdapter extends BaseAdapter {
                     mediaUrl = mediaEntities[j].getMediaURLHttps();
                     if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
                         imageUrls.add(mediaUrl);
+                        idList.add(status.getId());
                     }
                 }
-                idList.add(status.getId());
+
             }
         }
     }
 
-    public void addTimeLine(List<Status> statuses) {
+    public void addTimeLine(List<Status> statuses, boolean isFirst) {
+        //  ゴ    ミ   コ   ー   ド
+
         for (int i = 0; i < statuses.size(); i++) {
             twitter4j.Status status = statuses.get(i);
             MediaEntity[] mediaEntities = status.getExtendedMediaEntities();
             if (mediaEntities.length > 0) {
-                for (int j = 0; j < mediaEntities.length; j++) {
-                    mediaUrl = mediaEntities[j].getMediaURLHttps();
-                    if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
-                        imageUrls.add(mediaUrl);
+                if (isFirst == true) {
+                    // 引っ張って更新した時
+                    for (int j = mediaEntities.length - 1; j >=0; j--) {
+                        mediaUrl = mediaEntities[j].getMediaURLHttps();
+                        if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
+                            imageUrls.add(0, mediaUrl);
+                            idList.add(0,status.getId());
+                        }
+                    }
+                } else {
+                    // 遡ったとき
+                    for (int j = 0; j < mediaEntities.length; j++) {
+                        mediaUrl = mediaEntities[j].getMediaURLHttps();
+                        if (mediaUrl.matches(".*pbs\\.twimg\\.com/media/.*")) {
+                            imageUrls.add(mediaUrl);
+                            idList.add(status.getId());
+                        }
                     }
                 }
-                idList.add(status.getId());
             }
         }
-
     }
 
 
