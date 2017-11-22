@@ -2,9 +2,12 @@ package com.example.thiro.twipicviewer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView imageView;
     private ImageView iconImage;
     private TextView tweetText;
+    Button openButton;
     private ToggleButton rtButton;
     private ToggleButton favButton;
     private TextView idText;
@@ -39,6 +43,7 @@ public class DetailActivity extends AppCompatActivity {
         tweetId = intent.getLongExtra("id", 0);
         mTwitter = TwitterUtils.getTwitterInstance(this);
 
+        openButton = (Button) findViewById(R.id.openButton);
         rtButton = (ToggleButton) findViewById(R.id.button);
         favButton = (ToggleButton) findViewById(R.id.button2);
         iconImage = (ImageView) findViewById(R.id.iconImage);
@@ -74,6 +79,13 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
+
+    public void openApp(View v) {
+        String url = "twitter://status?id=" + String.valueOf(tweetId);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+    }
 
     public void enFav() {
         async(0);

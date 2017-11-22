@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context="com.example.thiro.twipicviewer.DetailActivity">
 
     <LinearLayout
@@ -27,7 +27,7 @@
 
             <ToggleButton
                 android:id="@+id/button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textOff="RT"
@@ -35,11 +35,19 @@
 
             <ToggleButton
                 android:id="@+id/button2"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:textOff="いいね"
                 android:textOn="いいね" />
+
+            <Button
+                android:id="@+id/openButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="開く"
+                android:onClick="openApp"/>
 
         </LinearLayout>
 
@@ -66,19 +74,19 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TextView" />
+
+        <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="This software includes the work that is distributed in the Apache License 2.0"
             android:textSize="11dp" />
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
 
     </LinearLayout>
 
