@@ -2,12 +2,14 @@ package com.example.thiro.twipicviewer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -50,20 +52,26 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        mTwitter = TwitterUtils.getTwitterInstance(this);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // インテントで画像URLとツイートIDをもらう
         Intent intent = getIntent();
         itemUrl = intent.getStringExtra("url");
         tweetId = intent.getLongExtra("id", 0);
-        mTwitter = TwitterUtils.getTwitterInstance(this);
 
         openButton = (Button) findViewById(R.id.openButton);
         rtButton = (ToggleButton) findViewById(R.id.button);
         favButton = (ToggleButton) findViewById(R.id.button2);
         iconImage = (ImageView) findViewById(R.id.iconImage);
-        itemImage = (ImageView) findViewById(R.id.imageView);
         tweetText = (TextView) findViewById(R.id.textView);
+        itemImage = (ImageView) findViewById(R.id.imageView);
 
-        Picasso.with(context).load(itemUrl + ":large").into(itemImage);
-        //setImage(itemUrl);
+
+        // 画像リソースをセット
+        int width = getDisplayWidth();
+        int height = getDisplayHeight();
+        Picasso.with(context).load(itemUrl + ":large").resize(width,height).centerInside().into(itemImage);
 
         rtButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -86,6 +94,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+        // ツイ内容とアイコンセット
         getStatus(tweetId);
 
     }
@@ -151,6 +160,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
+    // Twitterで開く
     public void openApp(View v) {
         String url = "twitter://status?id=" + String.valueOf(tweetId);
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -158,6 +168,7 @@ public class DetailActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // いいねとRT
     public void enFav() {
         async(0);
         showToast("ふぁぼった");
@@ -178,21 +189,27 @@ public class DetailActivity extends AppCompatActivity {
         showToast("RT消した");
     }
 
+
+    // めんどいからまとめる
     public void async(final int id) {
         AsyncTask<Void, Void, Void> loadTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
                     if (id == 0) {
+                        // いいねする
                         mTwitter.createFavorite(tweetId);
 
                     } else if (id == 1) {
+                        // いいね外す
                         mTwitter.destroyFavorite(tweetId);
 
                     } else if (id == 2) {
+                        // RTする
                         retweetItem = mTwitter.retweetStatus(tweetId);
 
                     } else if (id == 3) {
+                        // RT解除
                         mTwitter.destroyStatus(retweetItem.getId());
 
                     }
@@ -206,7 +223,7 @@ public class DetailActivity extends AppCompatActivity {
         loadTask.execute();
     }
 
-
+    // ツイ詳細
     public void getStatus(final long tweetId) {
         AsyncTask<Void, Void, Status> loadTask = new AsyncTask<Void, Void, Status>() {
             @Override
@@ -231,6 +248,14 @@ public class DetailActivity extends AppCompatActivity {
             }
         };
         loadTask.execute();
+    }
+
+    public int getDisplayWidth(){
+        return getWindowManager().getDefaultDisplay().getWidth();
+    }
+
+    public int getDisplayHeight(){
+        return getWindowManager().getDefaultDisplay().getHeight();
     }
 
     public void showToast(String text) {

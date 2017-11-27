@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:title="設定を反映させるには再起動してください"/>
+
+    <PreferenceCategory android:title="メイン画面">
+
+        <EditTextPreference
+            android:defaultValue="5"
+            android:key="@string/grid_height"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="グリッドの高さ" />
+        <EditTextPreference
+            android:defaultValue="2"
+            android:key="@string/grid_columns"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="グリッドの列数" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

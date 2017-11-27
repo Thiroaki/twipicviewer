@@ -1,6 +1,8 @@
 package com.example.thiro.twipicviewer;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,8 @@ public class TweetAdapter extends BaseAdapter {
     private LinkedList<String> imageUrls = new LinkedList<>();
     protected LinkedList<Long> idList = new LinkedList<>();
     private String mediaUrl;
+    private int itemHeight;
+    SharedPreferences sharedPref;
     Context context;
 
     static class ViewHolder {
@@ -37,6 +41,8 @@ public class TweetAdapter extends BaseAdapter {
         super();
         mInflater = LayoutInflater.from(mcontext);
         context = mcontext;
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        itemHeight = Integer.valueOf(sharedPref.getString("grid_height",""));
 
         for (int i = 0; i < statuses.size(); i++) {
             twitter4j.Status status = statuses.get(i);

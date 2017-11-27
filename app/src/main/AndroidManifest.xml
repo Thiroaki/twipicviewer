@@ -35,9 +35,12 @@
         <activity android:name=".WebActivity" />
         <activity android:name=".DetailActivity" />
         <activity
-            android:name=".TestActivity"
-            android:label="@string/title_activity_test"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".LisenceActivity"
+            android:label="@string/title_activity_lisence"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

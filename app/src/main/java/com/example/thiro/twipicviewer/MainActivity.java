@@ -2,9 +2,13 @@ package com.example.thiro.twipicviewer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import in.srain.cube.views.GridViewWithHeaderAndFooter;
 import jp.co.recruit_mp.android.headerfootergridview.HeaderFooterGridView;
 import twitter4j.Paging;
 import twitter4j.Status;
@@ -32,6 +37,7 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
     private SwipeRefreshLayout swipeRefreshLayout;
     private AsyncTask<Void, Void, List<Status>> addTask;
     protected long firstTweetId;
+    //private SharedPreferences sharedPref;
 
 
     @Override
@@ -39,20 +45,29 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("tpv");
+        // プレファレンスのセットと読み出し
+        PreferenceManager.setDefaultValues(this, R.xml.preference,false);
+        //sharedPref = getSharedPreferences("data",MODE_PRIVATE);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("TPV");
         toolbar.inflateMenu(R.menu.main_menu);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.setting) {
-                    showToast("setting");
+                    Intent intent = new Intent(getApplicationContext(),SettingsActivity.class);
+                    startActivity(intent);
                     return true;
+                }else if (id == R.id.lisence){
+                    Intent intent = new Intent(getApplicationContext(), LisenceActivity.class);
+                    startActivity(intent);
                 }
                 return false;
             }
-        });*/
+        });
 
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
@@ -61,6 +76,8 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         View footer = LayoutInflater.from(this).inflate(R.layout.grid_footer, null, false);
         gridView.addFooterView(footer, null, true);
         gridView.setOnItemClickListener(this);
+        String st = sharedPref.getString("grid_columns","");
+        gridView.setNumColumns(Integer.valueOf(st));
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView absListView, int i) {
@@ -77,6 +94,7 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
             }
         });
 
+        // 大事な所
         if (!TwitterUtils.hasAccessToken(this)) {
             Intent intent = new Intent(this, OAuthActivity.class);
             startActivity(intent);
@@ -90,11 +108,13 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
     }
 
 
+    // 初回のタイムライン読み込み
     private void loadTimeLine() {
         AsyncTask<Void, Void, List<Status>> loadTask = new AsyncTask<Void, Void, List<twitter4j.Status>>() {
             @Override
             protected List<twitter4j.Status> doInBackground(Void... params) {
                 try {
+                    // 一番最初の200ツイートを取得
                     return mTwitter.getHomeTimeline(new Paging(1, 200));
                 } catch (TwitterException e) {
                     e.printStackTrace();
@@ -117,6 +137,8 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         loadTask.execute();
     }
 
+
+    // タイムラインの追加
     private void additionalTimeLine(final boolean isFirst) {
         addTask = new AsyncTask<Void, Void, List<twitter4j.Status>>() {
             @Override
@@ -158,16 +180,20 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         addTask.execute();
     }
 
+    // 下まで行った時に見ていた場所を保存
     private void restoreListPosition() {
         int position = gridView.getFirstVisiblePosition();
         gridView.setSelection(position);
     }
 
+    // 一番新しいツイートを保存
+    // 次回は最新からここまでのツイを取得
     private void restoreFirstId() {
         firstTweetId = mAdapter.idList.getFirst();
     }
 
 
+    // GridViewのタッチイベント
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
         Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
@@ -176,28 +202,14 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         startActivity(intent);
     }
 
+
+    // 引っ張って更新すると呼ばれる
     @Override
     public void onRefresh() {
         additionalTimeLine(true);
         restoreFirstId();
+        // 最後は必ずこれでくるくるを消す
         swipeRefreshLayout.setRefreshing(false);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.setting) {
-            showToast("set");
-            return true;
-        }
-        return true;
     }
 
     private void showToast(String text) {
