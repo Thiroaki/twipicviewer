@@ -6,6 +6,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -30,14 +33,31 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
     private AsyncTask<Void, Void, List<Status>> addTask;
     protected long firstTweetId;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("tpv");
+        toolbar.inflateMenu(R.menu.main_menu);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                if (id == R.id.setting) {
+                    showToast("setting");
+                    return true;
+                }
+                return false;
+            }
+        });*/
+
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        gridView = (HeaderFooterGridView) findViewById(R.id.gridView);
+        gridView = findViewById(R.id.gridView);
         View footer = LayoutInflater.from(this).inflate(R.layout.grid_footer, null, false);
         gridView.addFooterView(footer, null, true);
         gridView.setOnItemClickListener(this);
@@ -163,6 +183,22 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         swipeRefreshLayout.setRefreshing(false);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.setting) {
+            showToast("set");
+            return true;
+        }
+        return true;
+    }
 
     private void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();

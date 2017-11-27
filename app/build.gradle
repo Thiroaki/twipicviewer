@@ -36,9 +36,11 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile files('libs/twitter4j-core-4.0.4.jar')
+    compile files('libs/android-smart-image-view-1.0.0.jar')
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'jp.co.recruit_mp:android-HeaderFooterGridView:0.2.5'
+    compile 'com.android.support:design:26.+'
     testCompile 'junit:junit:4.12'
 }
