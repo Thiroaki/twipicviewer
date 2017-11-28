@@ -184,9 +184,8 @@ public class DetailActivity extends AppCompatActivity {
 
                     } else if (id == 3) {
                         // RT解除
-                        getRetweets(tweetId);
-                        mTwitter.destroyStatus(tweetId);
-                        //mTwitter.destroyStatus(retweetItem.getId());
+                        // すでにRTしてた場合ぬるぽ
+                        mTwitter.destroyStatus(retweetItem.getId());
 
                     }
                 } catch (TwitterException e) {
@@ -217,8 +216,6 @@ public class DetailActivity extends AppCompatActivity {
                 if (result != null) {
                     Object obj = result.get(1);
                     tweetText.setText(obj.toString());
-                } else {
-                    showToast("ツイートの取得に失敗しました。。。");
                 }
             }
         };
@@ -241,7 +238,10 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(twitter4j.Status result) {
                 if (result != null) {
+                    // ツイ内容表示
                     tweetText.setText(result.getText());
+
+                    // アイコン画像セット
                     if (result.isRetweet() == true) {
                         Picasso.with(context).load(result.getRetweetedStatus().getUser().getProfileImageURLHttps()).into(iconImage);
                     }else{
