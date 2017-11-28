@@ -3,33 +3,23 @@ package com.example.thiro.twipicviewer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
+import twitter4j.Paging;
+import twitter4j.ResponseList;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -46,6 +36,8 @@ public class DetailActivity extends AppCompatActivity {
     private ToggleButton rtButton;
     private ToggleButton favButton;
     private Context context;
+    private boolean favFlag;
+    private boolean rtFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +63,16 @@ public class DetailActivity extends AppCompatActivity {
         // 画像リソースをセット
         int width = getDisplayWidth();
         int height = getDisplayHeight();
-        Picasso.with(context).load(itemUrl + ":large").resize(width,height).centerInside().into(itemImage);
+        Picasso.with(context).load(itemUrl + ":large").resize(width, height).centerInside().into(itemImage);
+
+
+        // ボタンの状態セット
+        if (isFavorited() == true){
+            favButton.setChecked(true);
+        }
+        if (isRetweeted() == true){
+            rtButton.setChecked(true);
+        }
 
         rtButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -94,69 +95,43 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+
         // ツイ内容とアイコンセット
         getStatus(tweetId);
 
     }
 
 
-    public void setImage(final String itemUrl) {
-        final DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-
-        AsyncTask<Void, Void, Bitmap> task = new AsyncTask<Void, Void, Bitmap>() {
+    public boolean isFavorited() {
+        AsyncTask<Void, Void, Void> getTask = new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Bitmap doInBackground(Void... builder) {
-                // 受け取ったbuilderでインターネット通信する
-                HttpURLConnection connection = null;
-                InputStream inputStream = null;
-                Bitmap bitmap = null;
-
+            protected Void doInBackground(Void... params) {
                 try {
-
-                    URL url = new URL(itemUrl + ":orig");
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    connection.connect();
-                    inputStream = connection.getInputStream();
-
-                    bitmap = BitmapFactory.decodeStream(inputStream);
-                } catch (MalformedURLException exception) {
-
-                } catch (IOException exception) {
-
-                } finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                    try {
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
-                    } catch (IOException exception) {
-                    }
+                    favFlag = mTwitter.showStatus(tweetId).isFavorited();
+                } catch (TwitterException e) {
+                    e.printStackTrace();
                 }
-                return bitmap;
-            }
-
-            @Override
-            protected void onPostExecute(Bitmap result) {
-                // インターネット通信して取得した画像をImageViewにセットする
-                itemImage.setImageBitmap(result);
-                float scale = dm.widthPixels / result.getWidth();
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams((int) (scale * result.getWidth()), (int) (scale * result.getHeight()));
-                lp.gravity = Gravity.CENTER;
-                itemImage.setLayoutParams(lp);
-                Matrix m = itemImage.getImageMatrix();
-                m.reset();
-                m.postScale(scale, scale);
-                itemImage.setImageMatrix(m);
+                return null;
             }
         };
-        task.execute();
+        getTask.execute();
+        return favFlag;
+    }
 
-
+    public boolean isRetweeted() {
+        AsyncTask<Void, Void, Void> getTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    rtFlag = mTwitter.showStatus(tweetId).isRetweeted();
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+        getTask.execute();
+        return rtFlag;
     }
 
 
@@ -189,7 +164,6 @@ public class DetailActivity extends AppCompatActivity {
         showToast("RT消した");
     }
 
-
     // めんどいからまとめる
     public void async(final int id) {
         AsyncTask<Void, Void, Void> loadTask = new AsyncTask<Void, Void, Void>() {
@@ -210,7 +184,9 @@ public class DetailActivity extends AppCompatActivity {
 
                     } else if (id == 3) {
                         // RT解除
-                        mTwitter.destroyStatus(retweetItem.getId());
+                        getRetweets(tweetId);
+                        mTwitter.destroyStatus(tweetId);
+                        //mTwitter.destroyStatus(retweetItem.getId());
 
                     }
                 } catch (TwitterException e) {
@@ -218,6 +194,32 @@ public class DetailActivity extends AppCompatActivity {
                     //showToast("失敗");
                 }
                 return null;
+            }
+        };
+        loadTask.execute();
+    }
+
+    public void getRetweets(final long tweetId){
+        AsyncTask<Void, Void, ResponseList> loadTask = new AsyncTask<Void, Void, ResponseList>() {
+            @Override
+            protected ResponseList doInBackground(Void... params) {
+                try {
+                    mTwitter.getUserTimeline(new Paging(tweetId));
+
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(ResponseList result) {
+                if (result != null) {
+                    Object obj = result.get(1);
+                    tweetText.setText(obj.toString());
+                } else {
+                    showToast("ツイートの取得に失敗しました。。。");
+                }
             }
         };
         loadTask.execute();
@@ -240,8 +242,11 @@ public class DetailActivity extends AppCompatActivity {
             protected void onPostExecute(twitter4j.Status result) {
                 if (result != null) {
                     tweetText.setText(result.getText());
-                    result.getRetweetedStatus();
-                    Picasso.with(context).load(result.getUser().getProfileImageURLHttps()).into(iconImage);
+                    if (result.isRetweet() == true) {
+                        Picasso.with(context).load(result.getRetweetedStatus().getUser().getProfileImageURLHttps()).into(iconImage);
+                    }else{
+                        Picasso.with(context).load(result.getUser().getProfileImageURLHttps()).into(iconImage);
+                    }
                 } else {
                     showToast("ツイートの取得に失敗しました。。。");
                 }
@@ -250,11 +255,11 @@ public class DetailActivity extends AppCompatActivity {
         loadTask.execute();
     }
 
-    public int getDisplayWidth(){
+    public int getDisplayWidth() {
         return getWindowManager().getDefaultDisplay().getWidth();
     }
 
-    public int getDisplayHeight(){
+    public int getDisplayHeight() {
         return getWindowManager().getDefaultDisplay().getHeight();
     }
 

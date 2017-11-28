@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <Preference
-        android:title="設定を反映させるには再起動してください"/>
+    <Preference android:title="設定を反映させる時は再起動してください"/>
+    <Preference android:title="アカウントを変えるにはアプリ情報の "/>
+    <Preference android:title="ストレージからデータを消去してください "/>
 
     <PreferenceCategory android:title="メイン画面">
 

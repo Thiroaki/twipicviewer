@@ -5,13 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
@@ -21,7 +18,6 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import in.srain.cube.views.GridViewWithHeaderAndFooter;
 import jp.co.recruit_mp.android.headerfootergridview.HeaderFooterGridView;
 import twitter4j.Paging;
 import twitter4j.Status;
@@ -37,7 +33,6 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
     private SwipeRefreshLayout swipeRefreshLayout;
     private AsyncTask<Void, Void, List<Status>> addTask;
     protected long firstTweetId;
-    //private SharedPreferences sharedPref;
 
 
     @Override
@@ -46,7 +41,7 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         setContentView(R.layout.activity_main);
 
         // プレファレンスのセットと読み出し
-        PreferenceManager.setDefaultValues(this, R.xml.preference,false);
+        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
         //sharedPref = getSharedPreferences("data",MODE_PRIVATE);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -58,10 +53,10 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
             public boolean onMenuItemClick(MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.setting) {
-                    Intent intent = new Intent(getApplicationContext(),SettingsActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
                     startActivity(intent);
                     return true;
-                }else if (id == R.id.lisence){
+                } else if (id == R.id.lisence) {
                     Intent intent = new Intent(getApplicationContext(), LisenceActivity.class);
                     startActivity(intent);
                 }
@@ -76,7 +71,7 @@ public class MainActivity extends Activity implements ListView.OnItemClickListen
         View footer = LayoutInflater.from(this).inflate(R.layout.grid_footer, null, false);
         gridView.addFooterView(footer, null, true);
         gridView.setOnItemClickListener(this);
-        String st = sharedPref.getString("grid_columns","");
+        String st = sharedPref.getString("grid_columns", "");
         gridView.setNumColumns(Integer.valueOf(st));
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override

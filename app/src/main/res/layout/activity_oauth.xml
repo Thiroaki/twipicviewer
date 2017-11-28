@@ -6,11 +6,22 @@
     android:layout_height="match_parent"
     tools:context="com.example.thiro.twipicviewer.OAuthActivity">
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="認証できなかった場合は\n再起動してやり直してください"
+        android:textSize="18dp"
+        android:layout_marginBottom="116dp"
+        android:layout_alignBottom="@+id/action_start_oauth"
+        android:layout_centerHorizontal="true" />
+
     <Button
         android:id="@+id/action_start_oauth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="認証"
+        android:text="\n     Twitter認証     \n"
+        android:textSize="20dp"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
